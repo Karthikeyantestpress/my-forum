@@ -1,15 +1,28 @@
 import React, { useRef, useEffect,useState } from 'react';
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { handleLogin } from '../auth/HandleLogin';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
-  const emailInputRef = useRef(null);   
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const emailInputRef = useRef(null);
+  
+  
+
+  const onLogin = async () => {
+    const token = await handleLogin(username, password);
+    if (token) {
+      navigation.replace('Forum', { authToken: token });
+    }
+  };
 
   useEffect(() => {
     emailInputRef.current?.focus();
   }, []);
-
+  
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.backdrop}>
@@ -26,6 +39,8 @@ export default function LoginScreen({ navigation }) {
                 placeholder="UserName"
                 ref={emailInputRef} 
                 style={styles.input}
+                value={username}
+                onChangeText={setUsername}
                 placeholderTextColor="#626262"
                 onFocus={() => setEmailFocused(true)}
                 onBlur={() => setEmailFocused(false)}
@@ -37,6 +52,8 @@ export default function LoginScreen({ navigation }) {
                 secureTextEntry
                 style={styles.input}
                 placeholderTextColor="#626262"
+                value={password}
+                onChangeText={setPassword}
                 onFocus={() => setPasswordFocused(true)}
                 onBlur={() => setPasswordFocused(false)}
               />
@@ -45,7 +62,7 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.signInButton}>
+            <TouchableOpacity style={styles.signInButton} onPress={onLogin}>
               <Text style={styles.buttonText}>Sign in</Text>
             </TouchableOpacity>
             <TouchableOpacity
